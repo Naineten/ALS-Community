@@ -331,6 +331,7 @@ void AALSBaseCharacter::SetGait(const EALSGait NewGait, bool bForce)
 
 void AALSBaseCharacter::SetDesiredStance(EALSStance NewStance)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Child Pressed"));
 	DesiredStance = NewStance;
 	if (GetLocalRole() == ROLE_AutonomousProxy)
 	{
@@ -525,6 +526,20 @@ void AALSBaseCharacter::SetActorLocationAndTargetRotation(FVector NewLocation, F
 {
 	SetActorLocationAndRotation(NewLocation, NewRotation);
 	TargetRotation = NewRotation;
+}
+
+void AALSBaseCharacter::SetActiveSmoothRotation(bool NewActive)
+{
+	bSmoothRotationEnabled = NewActive;
+	if (GetLocalRole() == ROLE_AutonomousProxy)
+	{
+		Server_SetActiveSmoothRotation(NewActive);
+	}
+}
+
+void AALSBaseCharacter::Server_SetActiveSmoothRotation_Implementation(bool NewActive)
+{
+	SetActiveSmoothRotation(NewActive);
 }
 
 void AALSBaseCharacter::SetMovementModel()
@@ -1139,7 +1154,7 @@ void AALSBaseCharacter::UpdateCharacterMovement()
 
 void AALSBaseCharacter::UpdateGroundedRotation(float DeltaTime)
 {
-	if (MovementAction == EALSMovementAction::None)
+	if ((MovementAction == EALSMovementAction::None) && bSmoothRotationEnabled)
 	{
 		const bool bCanUpdateMovingRot = ((bIsMoving && bHasMovementInput) || Speed > 150.0f) && !HasAnyRootMotion();
 		if (bCanUpdateMovingRot)

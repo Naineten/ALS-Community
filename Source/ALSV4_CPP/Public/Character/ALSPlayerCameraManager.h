@@ -44,8 +44,11 @@ protected:
 	static FVector CalculateAxisIndependentLag(
 		FVector CurrentLocation, FVector TargetLocation, FRotator CameraRotation, FVector LagSpeeds, float DeltaTime);
 
-	UFUNCTION(BlueprintCallable, Category = "ALS|Camera")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Camera")
 	bool CustomCameraBehavior(float DeltaTime, FVector& Location, FRotator& Rotation, float& FOV);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ALS|Camera")
+	bool FPCameraBehavior(float DeltaTime, FVector& Location, FRotator& Rotation, float& FOV);
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ALS|Camera")
@@ -75,6 +78,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ALS|Camera")
 	FVector DebugViewOffset;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ALS|Camera")
+	FVector DefaultPivotOffset = FVector::ZeroVector;
 
 private:
 	UPROPERTY()

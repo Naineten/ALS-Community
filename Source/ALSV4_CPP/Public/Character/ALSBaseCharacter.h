@@ -214,6 +214,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ALS|Rotation System")
 	void SetActorLocationAndTargetRotation(FVector NewLocation, FRotator NewRotation);
 
+	UFUNCTION(BlueprintCallable, Category = "ALS|Rotation System")
+	void SetActiveSmoothRotation (bool NewActive);
+
+	UFUNCTION(BlueprintCallable, Server, Reliable, Category = "ALS|Rotation System")
+	void Server_SetActiveSmoothRotation(bool NewActive);
+	
+
 	/** Movement System */
 
 	UFUNCTION(BlueprintGetter, Category = "ALS|Movement System")
@@ -385,41 +392,41 @@ protected:
 
 	/** Input */
 
-	void PlayerForwardMovementInput(float Value);
+	virtual void PlayerForwardMovementInput(float Value);
 
-	void PlayerRightMovementInput(float Value);
+	virtual void PlayerRightMovementInput(float Value);
 
-	void PlayerCameraUpInput(float Value);
+	virtual void PlayerCameraUpInput(float Value);
 
-	void PlayerCameraRightInput(float Value);
+	virtual void PlayerCameraRightInput(float Value);
 
-	void JumpPressedAction();
+	virtual void JumpPressedAction();
 
-	void JumpReleasedAction();
+	virtual void JumpReleasedAction();
 
-	void SprintPressedAction();
+	virtual void SprintPressedAction();
 
-	void SprintReleasedAction();
+	virtual void SprintReleasedAction();
 
-	void AimPressedAction();
+	virtual void AimPressedAction();
 
-	void AimReleasedAction();
+	virtual void AimReleasedAction();
 
-	void CameraPressedAction();
+	virtual void CameraPressedAction();
 
-	void CameraReleasedAction();
+	virtual void CameraReleasedAction();
 
-	void OnSwitchCameraMode();
+	virtual void OnSwitchCameraMode();
 
-	void StancePressedAction();
+	virtual void StancePressedAction();
 
-	void WalkPressedAction();
+	virtual void WalkPressedAction();
 
-	void RagdollPressedAction();
+	virtual void RagdollPressedAction();
 
-	void VelocityDirectionPressedAction();
+	virtual void VelocityDirectionPressedAction();
 
-	void LookingDirectionPressedAction();
+	virtual void LookingDirectionPressedAction();
 
 	/** Replication */
 	UFUNCTION(Category = "ALS|Replication")
@@ -572,6 +579,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "ALS|Rotation System")
 	float YawOffset = 0.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "ALS|Rotation System")
+	bool bSmoothRotationEnabled = true;
+	
 	/** Breakfall System */
 
 	/** If player hits to the ground with a specified amount of velocity, switch to breakfall state */

@@ -13,6 +13,7 @@
 #include "Character/ALSPlayerController.h"
 #include "Character/Animation/ALSPlayerCameraBehavior.h"
 #include "Components/ALSDebugComponent.h"
+#include "DrawDebugHelpers.h"
 
 #include "Kismet/KismetMathLibrary.h"
 
@@ -124,7 +125,50 @@ FVector AALSPlayerCameraManager::CalculateAxisIndependentLag(FVector CurrentLoca
 	return CameraRotation.RotateVector(ResultVector);
 }
 
-bool AALSPlayerCameraManager::CustomCameraBehavior(float DeltaTime, FVector& Location, FRotator& Rotation, float& FOV)
+bool AALSPlayerCameraManager::FPCameraBehavior_Implementation(float DeltaTime, FVector& Location, FRotator& Rotation,
+	float& FOV)
+{
+	if (!ControlledCharacter) return false;
+	
+
+	// out0
+	TargetCameraRotation = GetOwningPlayerController()->GetControlRotation();
+
+	//out1
+	
+	const FVector LCameraLocation = ControlledCharacter->GetFirstPersonCameraTarget();
+	const FRotator LCameraRotation = ControlledCharacter->GetMesh()->GetSocketRotation(FName(TEXT("FP_Camera")));
+	// here location or rotation can be smoothed
+	SmoothedPivotTarget.SetLocation(LCameraLocation);
+	SmoothedPivotTarget.SetRotation(LCameraRotation.Quaternion());
+
+	//out2
+	// Assign pivot offset with curve values of CameraAnimBP
+	PivotLocation =
+	SmoothedPivotTarget.GetLocation() +
+	UKismetMathLibrary::GetForwardVector(SmoothedPivotTarget.Rotator()) * GetCameraBehaviorParam(
+		NAME_PivotOffset_X) +
+	UKismetMathLibrary::GetRightVector(SmoothedPivotTarget.Rotator()) * GetCameraBehaviorParam(
+		NAME_PivotOffset_Y) +
+	UKismetMathLibrary::GetUpVector(SmoothedPivotTarget.Rotator()) * GetCameraBehaviorParam(
+		NAME_PivotOffset_Z);
+
+	//out3
+	TargetCameraLocation =
+	PivotLocation +
+	UKismetMathLibrary::GetForwardVector(TargetCameraRotation) * GetCameraBehaviorParam(NAME_CameraOffset_X) +
+	UKismetMathLibrary::GetRightVector(TargetCameraRotation) * GetCameraBehaviorParam(NAME_CameraOffset_Y) +
+	UKismetMathLibrary::GetUpVector(TargetCameraRotation) * GetCameraBehaviorParam(NAME_CameraOffset_Z);
+
+	// return calculated parameters
+	Location = TargetCameraLocation;
+	Rotation = TargetCameraRotation;
+	FOV = DefaultFOV;
+	
+	return true;
+}
+
+bool AALSPlayerCameraManager::CustomCameraBehavior_Implementation(float DeltaTime, FVector& Location, FRotator& Rotation, float& FOV)
 {
 	if (!ControlledCharacter)
 	{
@@ -134,6 +178,9 @@ bool AALSPlayerCameraManager::CustomCameraBehavior(float DeltaTime, FVector& Loc
 	// Step 1: Get Camera Parameters from CharacterBP via the Camera Interface
 	const FTransform& PivotTarget = ControlledCharacter->GetThirdPersonPivotTarget();
 	const FVector& FPTarget = ControlledCharacter->GetFirstPersonCameraTarget();
+
+
+	
 	float TPFOV = 90.0f;
 	float FPFOV = 90.0f;
 	bool bRightShoulder = false;

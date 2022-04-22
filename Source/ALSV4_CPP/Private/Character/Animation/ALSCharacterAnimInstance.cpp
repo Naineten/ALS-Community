@@ -70,7 +70,6 @@ void UALSCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		// Fix character looking right on editor
 		RotationMode = EALSRotationMode::VelocityDirection;
-
 		// Don't run in editor
 		return;
 	}
@@ -86,7 +85,6 @@ void UALSCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	CharacterInformation.MovementInput = Character->GetMovementInput();
 	CharacterInformation.AimingRotation = Character->GetAimingRotation();
 	CharacterInformation.CharacterActorRotation = Character->GetActorRotation();
-
 	UpdateAimingValues(DeltaSeconds);
 	UpdateLayerValues();
 	UpdateFootIK(DeltaSeconds);
@@ -96,7 +94,8 @@ void UALSCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		// Check If Moving Or Not & Enable Movement Animations if IsMoving and HasMovementInput, or if the Speed is greater than 150.
 		const bool bPrevShouldMove = Grounded.bShouldMove;
 		Grounded.bShouldMove = ShouldMoveCheck();
-
+		SetupLeaning(DeltaSeconds);
+		
 		if (bPrevShouldMove == false && Grounded.bShouldMove)
 		{
 			// Do When Starting To Move
@@ -939,4 +938,20 @@ void UALSCharacterAnimInstance::OnPivot()
 	check(World);
 	World->GetTimerManager().SetTimer(OnPivotTimer, this,
 	                                  &UALSCharacterAnimInstance::OnPivotDelay, 0.1f, false);
+}
+
+void UALSCharacterAnimInstance::SetupLeaning(float DeltaTime)
+{
+	if(TryGetPawnOwner())
+	{
+		FRotator Delta = PreviousRotation - TryGetPawnOwner()->GetActorRotation();
+		Delta.Normalize();
+		Lean = FMath::FInterpTo(Lean, NormalizeLean(Delta.Yaw, DeltaTime),DeltaTime,LeanSmooth);
+		PreviousRotation = TryGetPawnOwner()->GetActorRotation();
+	}	
+}
+
+float UALSCharacterAnimInstance::NormalizeLean(const float InValue, float DeltaTime) const
+{
+	return (InValue*(1.0/DeltaTime))/120;	
 }

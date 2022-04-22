@@ -21,7 +21,7 @@ void AALSPlayerController::OnPossess(APawn* NewPawn)
 		// Servers want to setup camera only in listen servers.
 		SetupCamera();
 	}
-	SetupDebugInputs();
+	if (DebugInputsEnabled) {SetupDebugInputs();}
 }
 
 void AALSPlayerController::OnRep_Pawn()
@@ -36,7 +36,7 @@ void AALSPlayerController::BeginPlayingState()
 	Super::BeginPlayingState();
 	if (GetLocalRole() == ROLE_AutonomousProxy)
 	{
-		SetupDebugInputs();
+		if (DebugInputsEnabled) {SetupDebugInputs();}
 	}
 }
 

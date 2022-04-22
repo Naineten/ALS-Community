@@ -214,7 +214,16 @@ public:
 	FALSVelocityBlend VelocityBlend;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Read Only Data|Anim Graph - Grounded")
+	float Lean;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Read Only Data|Anim Graph - Grounded")
+	FRotator PreviousRotation;
+	
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Read Only Data|Anim Graph - Grounded")
 	FALSLeanAmount LeanAmount;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Read Only Data|Anim Graph - Grounded")
+	float LeanSmooth = 6.0f;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Read Only Data|Anim Graph - Grounded")
 	FVector RelativeAccelerationAmount = FVector::ZeroVector;
@@ -320,4 +329,9 @@ private:
 
 	UPROPERTY()
 	UALSDebugComponent* ALSDebugComponent = nullptr;
+
+	void SetupLeaning(float DeltaTime);
+
+	float NormalizeLean(const float InValue, float DeltaTime) const;
+	
 };

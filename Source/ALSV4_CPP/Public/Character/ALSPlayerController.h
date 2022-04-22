@@ -37,4 +37,7 @@ public:
 	/** Main character reference */
 	UPROPERTY(BlueprintReadOnly, Category = "ALS Player Controller")
 	AALSBaseCharacter* PossessedCharacter = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ALS Player Controller")
+	bool DebugInputsEnabled = false;
 };
